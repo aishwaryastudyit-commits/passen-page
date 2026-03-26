@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RailGuard</title>
+
+    <!-- Mobile viewport meta -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: #F4F7FE;
+        }
+
+        .header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 60px;
+            background-color: #2D3E50;
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .screen { display: none; }
+        .active { display: block; }
+
+        .main-content {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .tagline {
+            color: #555;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            max-width: 380px;
+            margin: 30px auto;
+        }
+
+        .pnr-label {
+            display: block;
+            text-align: left;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .pnr-input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            font-size: 18px;
+            letter-spacing: 4px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            width: 100%;
+            background: #0052cc;
+            color: white;
+            padding: 14px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-danger { background: red; }
+
+        .list label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .info {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        /* FORM INPUT */
+        .form-input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* ---------------- MOBILE RESPONSIVE ---------------- */
+        @media screen and (max-width: 480px) {
+
+            .card {
+                margin: 20px;
+                padding: 20px;
+                border-radius: 15px;
+            }
+
+            .pnr-input, .form-input, select, textarea, .btn {
+                font-size: 16px;
+                padding: 12px;
+            }
+
+            .header {
+                font-size: 16px;
+            }
+
+            table {
+                width: 100%;
+                display: block;
+                overflow-x: auto;
+            }
+
+            table th, table td {
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            .main-content {
+                margin-top: 20px;
+            }
+
+            .tagline {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header">🚆 RailGuard</div>
+
+<!-- SCREEN 1 -->
+<div id="screen1" class="screen active">
+    <div class="main-content">
+        <h2>Passenger Check-in</h2>
+        <div class="tagline">Confirm your ticket and ensure a safe journey</div>
+    </div>
+
+    <div class="card">
+        <label class="pnr-label">Enter 10-digit PNR Number</label>
+        <input type="text" id="pnrInput" class="pnr-input" placeholder="__________">
+        <button class="btn" onclick="goToPassengers()">Check-in</button>
+        <div class="info">ℹ️ Used only for safety & verification</div>
+    </div>
+</div>
+
+<!-- SCREEN 2 -->
+<div id="screen2" class="screen">
+    <div class="main-content">
+        <h2>Select Passengers</h2>
+        <div class="tagline">Mark who is travelling</div>
+    </div>
+
+    <div class="card list">
+        <div id="passengerList"></div>
+        <button class="btn" onclick="goToStatus()">Confirm Check-in</button>
+    </div>
+</div>
+
+<!-- SCREEN 2.5 STATUS -->
+<div id="screenStatus" class="screen">
+    <div class="main-content">
+        <h2>Coach Status Check</h2>
+        <div class="tagline">Help us understand current coach condition</div>
+    </div>
+
+    <div class="card">
+
+        <p><b>How is your coach right now?</b></p>
+
+        <label style="display:block;"><input type="checkbox" name="status" onclick="selectOne(this)"> 🟢 Safe</label>
+        <label style="display:block;"><input type="checkbox" name="status" onclick="selectOne(this)"> 🟡 Slightly Crowded</label>
+        <label style="display:block;"><input type="checkbox" name="status" onclick="selectOne(this)"> 🟠 Very Crowded</label>
+        <label style="display:block;"><input type="checkbox" name="status" onclick="selectOne(this)"> 🔴 Unsafe</label>
+
+        <button class="btn" onclick="submitStatus()">Continue</button>
+
+    </div>
+</div>
+
+<!-- SCREEN 3 -->
+<div id="screen3" class="screen">
+    <div class="main-content">
+        <h2>Coach Dashboard</h2>
+    </div>
+
+    <div class="card">
+        <p><b>Status:</b> <span id="coachStatus">-</span></p>
+        <p><b>Seats:</b> <span id="seatCount">0</span> / 6</p>
+        <p><b>Complaints:</b> <span id="count">0</span></p>
+
+        <button class="btn" onclick="goToReport()">⚠ Report Issue</button>
+        <button class="btn btn-danger" onclick="emergency()">🚨 Emergency</button>
+
+        <button class="btn" onclick="goToRAC()">📋 RAC Status</button>
+        <button class="btn" onclick="goToStaff()">📍 Find Staff</button>
+        <button class="btn" onclick="goToReports()">📄 View Reports</button>
+    </div>
+</div>
+
+<!-- 🚨 SCREEN 6: REPORT ISSUE -->
+<div id="screen6" class="screen">
+    <div class="main-content">
+        <h2>Report Issue</h2>
+        <div class="tagline">Help us improve your journey</div>
+    </div>
+
+    <div class="card">
+
+        <label>Issue Type</label>
+        <select class="form-input">
+            <option>Cleanliness</option>
+            <option>Unreserved Passengers</option>
+            <option>Noise / Disturbance</option>
+            <option>Safety Concern</option>
+            <option>Other</option>
+        </select>
+
+        <label>Coach Number</label>
+        <input type="text" id="coachNo" class="form-input" readonly>
+
+        <label>Seat Number</label>
+        <input type="text" id="seatNo" class="form-input" readonly>
+
+        
+        <label>Description</label>
+        <textarea id="descBox" rows="3" class="form-input" placeholder="Describe the issue briefly..." maxlength="200" oninput="updateCount()"></textarea>
+
+        <div style="text-align:right; font-size:12px; color:#555;">
+        <span id="charCount">0</span>/200
+        </div>
+
+        <label>Upload Photo (Optional)</label>
+        <input type="file" id="photoInput" class="form-input" accept="image/*">
+
+        <label>Priority</label>
+        <select class="form-input">
+            <option>Normal</option>
+            <option>Urgent</option>
+        </select>
+
+        <button class="btn" onclick="submitIssue()">Submit Issue</button>
+
+        <div class="info">📡 Will be submitted when network is available</div>
+
+        <button class="btn" onclick="back()">⬅ Back</button>
+
+    </div>
+</div>
+
+<!-- 📄 SCREEN 8: VIEW REPORTS -->
+<div id="screen8" class="screen">
+    <div class="main-content">
+        <h2>Your Reports</h2>
+        <div class="tagline">All issues you reported</div>
+    </div>
+
+    <div class="card">
+        <div id="reportList"></div>
+        <button class="btn" onclick="back()">⬅ Back</button>
+    </div>
+</div>
+
+
+<!-- 🚨 SCREEN 7: EMERGENCY ALERT -->
+<div id="screenEmergency" class="screen">
+    <div class="main-content">
+        <h2 style="color:red;">🚨 Emergency Alert Sent</h2>
+        <div class="tagline">Help is on the way. Stay calm.</div>
+    </div>
+
+    <div class="card" style="text-align:center;">
+        <p id="emergencyDetails"></p>
+        <button class="btn" onclick="back()">⬅ Back to Dashboard</button>
+    </div>
+</div>
+
+<!-- SCREEN 4 RAC -->
+<div id="screen4" class="screen">
+    <div class="main-content">
+        <h2>RAC Allocation</h2>
+    </div>
+
+    <div class="card" style="width:90%; max-width:1000px;">
+
+        <!-- Seat Allocation -->
+        <p><b>Latest Seat Allocation:</b></p>
+        <p>✅ RAC 2 → Seat 36 (Coach S5)</p>
+        <p>✅ RAC 3 → Seat 41 (Coach S4)</p>
+        <p>⏳ Next Allocation: RAC 5</p>
+
+        <br>
+
+        <!-- TABLE -->
+        <table style="width:100%; border-collapse: collapse; font-size:16px; text-align:center;">
+            <tr style="background:#f1f5f9;">
+                <th style="padding:12px; border:1px solid #ddd;">RAC No</th>
+                <th style="padding:12px; border:1px solid #ddd;">Name</th>
+                <th style="padding:12px; border:1px solid #ddd;">Seat Status</th>
+            </tr>
+
+            <tr><td>RAC 2</td><td>Deepa</td><td style="color:green;">Allocated</td></tr>
+            <tr><td>RAC 3</td><td>Aishwarya</td><td style="color:green;">Allocated</td></tr>
+            <tr><td>RAC 5</td><td>Meena</td><td style="color:orange;">Waiting</td></tr>
+            <tr><td>RAC 7</td><td>Rahul</td><td style="color:orange;">Waiting</td></tr>
+            <tr><td>RAC 9</td><td>Arjun</td><td style="color:orange;">Waiting</td></tr>
+            <tr><td>RAC 11</td><td>Naveen</td><td style="color:orange;">Waiting</td></tr>
+            <tr><td>RAC 13</td><td>Vikram</td><td style="color:orange;">Waiting</td></tr>
+            <tr><td>RAC 15</td><td>Rohit</td><td style="color:orange;">Waiting</td></tr>
+            <tr><td>RAC 17</td><td>Tarun</td><td style="color:orange;">Waiting</td></tr>
+            <tr><td>RAC 19</td><td>Priya</td><td style="color:orange;">Waiting</td></tr>
+            <tr><td>RAC 21</td><td>Lavanya</td><td style="color:orange;">Waiting</td></tr>
+            <tr><td>RAC 23</td><td>Keerthi</td><td style="color:orange;">Waiting</td></tr>
+            <tr><td>RAC 25</td><td>Sanjay</td><td style="color:orange;">Waiting</td></tr>
+            <tr><td>RAC 27</td><td>Varun</td><td style="color:orange;">Waiting</td></tr>
+            <tr><td>RAC 29</td><td>Gokul</td><td style="color:orange;">Waiting</td></tr>
+            <tr><td>RAC 31</td><td>Aravind</td><td style="color:orange;">Waiting</td></tr>
+            <tr><td>RAC 33</td><td>Prakash</td><td style="color:orange;">Waiting</td></tr>
+            <tr><td>RAC 35</td><td>Kavya</td><td style="color:orange;">Waiting</td></tr>
+            <tr><td>RAC 37</td><td>Akash</td><td style="color:orange;">Waiting</td></tr>
+            <tr><td>RAC 39</td><td>Harsha</td><td style="color:orange;">Waiting</td></tr>
+            <tr><td>RAC 41</td><td>Dinesh</td><td style="color:orange;">Waiting</td></tr>
+            <tr><td>RAC 43</td><td>Surya</td><td style="color:orange;">Waiting</td></tr>
+            <tr><td>RAC 45</td><td>Ravi</td><td style="color:orange;">Waiting</td></tr>
+            <tr><td>RAC 47</td><td>Vishal</td><td style="color:orange;">Waiting</td></tr>
+            <tr><td>RAC 49</td><td>Kishore</td><td style="color:orange;">Waiting</td></tr>
+            <tr><td>RAC 51</td><td>Ganesh</td><td style="color:orange;">Waiting</td></tr>
+            <tr><td>RAC 53</td><td>Charan</td><td style="color:orange;">Waiting</td></tr>
+            <tr><td>RAC 55</td><td>Abhi</td><td style="color:orange;">Waiting</td></tr>
+            <tr><td>RAC 57</td><td>Radha</td><td style="color:orange;">Waiting</td></tr>
+            <tr><td>RAC 59</td><td>Raju</td><td style="color:orange;">Waiting</td></tr>
+            <tr><td>RAC 61</td><td>Mani</td><td style="color:orange;">Waiting</td></tr>
+            <tr><td>RAC 63</td><td>Hari</td><td style="color:orange;">Waiting</td></tr>
+            <tr><td>RAC 65</td><td>Jaya</td><td style="color:orange;">Waiting</td></tr>
+            <tr><td>RAC 67</td><td>Sathish</td><td style="color:orange;">Waiting</td></tr>
+            <tr><td>RAC 69</td><td>Yamini</td><td style="color:orange;">Waiting</td></tr>
+        </table>
+
+        <button class="btn" onclick="back()">⬅ Back</button>
+    </div>
+</div>
+
+<!-- SCREEN 5 -->
+<div id="screen5" class="screen">
+    <div class="main-content">
+        <h2>Staff Location</h2>
+    </div>
+
+    <div class="card">
+        <p>TTE: Coach S3</p>
+        <p>RPF: Coach S5</p>
+        <button class="btn" onclick="back()">⬅ Back</button>
+    </div>
+</div>
+
+<!-- 🚨 EMERGENCY POPUP -->
+<div id="emergencyModal" style="
+    position: fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background: rgba(0,0,0,0.5);
+    display:none;
+    justify-content:center;
+    align-items:center;
+">
+    <div style="
+        background:white;
+        padding:20px;
+        border-radius:15px;
+        width:300px;
+    ">
+        <h3>🚨 Select Emergency</h3>
+
+        <label><input type="radio" name="emType" value="Medical"> Medical</label><br>
+        <label><input type="radio" name="emType" value="Safety Threat"> Safety Threat</label><br>
+        <label><input type="radio" name="emType" value="Theft / Harassment"> Theft / Harassment</label>
+
+        <p id="timerText" style="color:red;"></p>
+
+        <button class="btn btn-danger" onclick="cancelEmergency()">Cancel</button>
+    </div>
+</div>
+
+<script>
+
+const pnrData = {
+"1111111111": ["Harini","Deepa","Aishwarya","Kiran","Meena","Suresh"]
+};
+
+let complaints = 0;
+
+function showScreen(id){
+    document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+
+    // 🔥 IF DASHBOARD, LOAD COUNT
+    if(id === "screen3"){
+        let issues = JSON.parse(localStorage.getItem("railguard_issues")) || [];
+        document.getElementById("count").innerText = issues.length;
+    }
+}
+function goToReports(){
+
+    let issues = JSON.parse(localStorage.getItem("railguard_issues")) || [];
+    let emergencies = JSON.parse(localStorage.getItem("railguard_emergency")) || [];
+
+    let container = document.getElementById("reportList");
+
+    let allReports = [];
+
+    // 🔵 Normal issues
+    issues.forEach(r => {
+        allReports.push({
+            type: "Issue",
+            title: r.issueType,
+            coach: r.coach,
+            seat: r.seat,
+            desc: r.description,
+            priority: r.priority,
+            photo: r.photo, // 🔥 IMPORTANT
+            time: r.time
+        });
+    });
+
+    // 🔴 Emergencies
+    emergencies.forEach(e => {
+        allReports.push({
+            type: "Emergency",
+            title: e.type,
+            coach: e.coach,
+            seat: e.seat,
+            desc: "🚨 Emergency Alert",
+            priority: "HIGH",
+            photo: null,
+            time: e.time
+        });
+    });
+
+    // 🔥 Latest first
+    allReports.sort((a,b) => new Date(b.time) - new Date(a.time));
+
+    if(allReports.length === 0){
+        container.innerHTML = "<p>No reports yet.</p>";
+    } else {
+
+        container.innerHTML = "";
+
+        allReports.forEach((r, i) => {
+            container.innerHTML += `
+                <div style="border-bottom:1px solid #ddd; padding:10px 0;">
+                    <b>#${i+1} - ${r.title} (${r.type})</b><br>
+                    Coach: ${r.coach} | Seat: ${r.seat}<br>
+                    Priority: ${r.priority}<br>
+                    ${r.desc}<br>
+
+                    ${r.photo ? `<img src="${r.photo}" style="width:100%; max-width:200px; margin-top:5px; border-radius:10px;">` : ""}
+
+                    <small>${r.time}</small>
+                </div>
+            `;
+        });
+    }
+
+    showScreen("screen8");
+}
+function goToPassengers(){
+    let pnr = document.getElementById("pnrInput").value;
+    let list = document.getElementById("passengerList");
+    list.innerHTML = "";
+
+    if(pnrData[pnr]){
+        pnrData[pnr].forEach((name,index)=>{
+            list.innerHTML += `<label><input type="checkbox" class="passengerBox" data-seat="${index+1}"> ${name}</label>`;
+        });
+        showScreen("screen2");
+    } else {
+        alert("Invalid PNR");
+    }
+}
+
+function goToStatus(){
+    showScreen("screenStatus");
+}
+
+function submitStatus(){
+    let selectedBoxes = document.querySelectorAll(".passengerBox:checked");
+    document.getElementById("seatCount").innerText = selectedBoxes.length;
+
+    let status = document.querySelector('input[name="status"]:checked');
+    if(status){
+        document.getElementById("coachStatus").innerText = status.parentElement.innerText;
+    }
+
+    showScreen("screen3");
+}
+
+/* 🔥 GO TO REPORT */
+function goToReport(){
+    document.getElementById("coachNo").value = "S5"; // demo auto
+    document.getElementById("seatNo").value = "Seat " + document.getElementById("seatCount").innerText;
+    showScreen("screen6");
+}
+function updateCount(){
+    let text = document.getElementById("descBox").value;
+    document.getElementById("charCount").innerText = text.length;
+}
+
+function submitIssue(){
+    complaints++;
+    document.getElementById("count").innerText = complaints;
+    alert("Issue submitted (offline stored)");
+    showScreen("screen3");
+}
+function submitIssue(){
+
+    let desc = document.getElementById("descBox").value;
+
+    let fileInput = document.getElementById("photoInput");
+    let file = fileInput.files[0];
+
+    if(file){
+        let reader = new FileReader();
+
+        reader.onload = function(e){
+
+            let issue = {
+                issueType: document.querySelectorAll("select")[0].value,
+                coach: document.getElementById("coachNo").value,
+                seat: document.getElementById("seatNo").value,
+                description: desc,
+                priority: document.querySelectorAll("select")[1].value,
+                photo: e.target.result, // ✅ ACTUAL IMAGE
+                time: new Date().toLocaleString()
+            };
+
+            saveIssue(issue);
+        };
+
+        reader.readAsDataURL(file); // 🔥 converts to base64
+
+    } else {
+
+        let issue = {
+            issueType: document.querySelectorAll("select")[0].value,
+            coach: document.getElementById("coachNo").value,
+            seat: document.getElementById("seatNo").value,
+            description: desc,
+            priority: document.querySelectorAll("select")[1].value,
+            photo: null,
+            time: new Date().toLocaleString()
+        };
+
+        saveIssue(issue);
+    }
+}
+
+function saveIssue(issue){
+    let issues = JSON.parse(localStorage.getItem("railguard_issues")) || [];
+
+    issues.push(issue);
+
+    localStorage.setItem("railguard_issues", JSON.stringify(issues));
+
+    document.getElementById("count").innerText = issues.length;
+
+    alert("✅ Issue saved");
+
+    showScreen("screen3");
+}
+
+function goToRAC(){ showScreen("screen4"); }
+function goToStaff(){ showScreen("screen5"); }
+function back(){ showScreen("screen3"); }
+
+let emergencyTimer;
+
+function emergency(){
+    document.getElementById("emergencyModal").style.display = "flex";
+
+    let radios = document.querySelectorAll('input[name="emType"]');
+
+    radios.forEach(r => {
+        r.checked = false;
+        r.onchange = startEmergencyTimer;
+    });
+}
+
+function startEmergencyTimer(){
+    let timeLeft = 5;
+    let timerText = document.getElementById("timerText");
+
+    timerText.innerText = "Sending in " + timeLeft + " sec...";
+
+    clearInterval(emergencyTimer);
+
+    emergencyTimer = setInterval(() => {
+        timeLeft--;
+        timerText.innerText = "Sending in " + timeLeft + " sec...";
+
+        if(timeLeft === 0){
+            clearInterval(emergencyTimer);
+            sendEmergency();
+        }
+    }, 1000);
+}
+
+function cancelEmergency(){
+    clearInterval(emergencyTimer);
+    document.getElementById("emergencyModal").style.display = "none";
+}
+
+function sendEmergency(){
+
+    let selected = document.querySelector('input[name="emType"]:checked');
+    let selectedType = selected ? selected.value : "General Emergency";
+
+    let coach = document.getElementById("coachNo")?.value || "S5";
+    let seat = document.getElementById("seatNo")?.value || "Unknown";
+
+    let emergencies = JSON.parse(localStorage.getItem("railguard_emergency")) || [];
+
+    let data = {
+        type: selectedType,
+        coach: coach,
+        seat: seat,
+        time: new Date().toLocaleString()
+    };
+
+    emergencies.push(data);
+    localStorage.setItem("railguard_emergency", JSON.stringify(emergencies));
+
+    document.getElementById("emergencyDetails").innerText =
+`Type: ${selectedType}
+Coach: ${coach}
+Seat: ${seat}
+Time: ${data.time}`;
+
+    document.getElementById("emergencyModal").style.display = "none";
+
+    showScreen("screenEmergency");
+}
+
+
+</script>
+
+</body>
+</html>
